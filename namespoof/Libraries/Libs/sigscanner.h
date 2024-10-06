@@ -10,6 +10,7 @@
 #include <ranges>
 #include <optional>
 #include <algorithm>
+#include <future>
 
 #define INRANGE(x,a,b)		(x >= a && x <= b) 
 #define getBits( x )		(INRANGE(x,'0','9') ? (x - '0') : ((x&(~0x20)) - 'A' + 0xa))
@@ -47,16 +48,39 @@ namespace Memory {
 		return sig;
 	}
 
-    static constexpr uintptr_t findSig(const length start, const length end, const signature pattern) {
-        if (start >= end || pattern.empty()) return 0;
+	static uintptr_t findSig(const length start, const length end, const signature pattern) {
+		if (start >= end || pattern.empty()) return 0;
 
-        auto address = std::search((byte*)start, (byte*)(end - pattern.size() + 1), pattern.begin(), pattern.end(), 
-            [](byte a, const test& b) 
-            { return b.iswild || a == b._byte; }
-        );
+		auto* _start = (byte*)start;
+		auto* _end = (byte*)end - pattern.size() + 1;
+		std::atomic<bool> found(false);
+		std::promise<uintptr_t> promise;
+		auto future = promise.get_future();
 
-        return (address != (byte*)(end - pattern.size() + 1)) ? start + std::distance((byte*)start, address) : 0;
-    }
+		size_t thread_count = std::thread::hardware_concurrency();
+		size_t chunk_size = (_end - _start) / thread_count;
+
+		std::vector<std::future<void>> futures;
+		for (size_t i = 0; i < thread_count; ++i) {
+			auto* chunk_start = _start + i * chunk_size;
+			auto* chunk_end = (i == thread_count - 1) ? _end : chunk_start + chunk_size;
+
+			futures.push_back(std::async(std::launch::async, [&, chunk_start, chunk_end]() {
+				if (found) return;
+
+				auto address = std::search(chunk_start, chunk_end, pattern.begin(), pattern.end(),
+					[](const byte& a, const test& b) 
+					{ return b.iswild || a == b._byte; }
+				);
+
+				if (address != chunk_end && !found.exchange(true))
+					promise.set_value((uintptr_t)address);
+			}));
+		}
+
+		future.wait();
+		return found ? future.get() : 0;
+	}
 
 	template <typename Return, typename Type>
 	static Return& at(Type* type, size_t offset) {
