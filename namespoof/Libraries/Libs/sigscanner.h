@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <future>
 
+#include "../Logger/Logger.h"
+
 #define INRANGE(x,a,b)		(x >= a && x <= b) 
 #define getBits( x )		(INRANGE(x,'0','9') ? (x - '0') : ((x&(~0x20)) - 'A' + 0xa))
 #define getByte( x )		(getBits(x[0]) << 4 | getBits(x[1]))
@@ -48,38 +50,38 @@ namespace Memory {
 		return sig;
 	}
 
-	static uintptr_t findSig(const length start, const length end, const signature pattern) {
+	static constexpr uintptr_t findSig(const length start, const length end, const signature pattern) {
 		if (start >= end || pattern.empty()) return 0;
 
-		auto* _start = (byte*)start;
-		auto* _end = (byte*)end - pattern.size() + 1;
-		std::atomic<bool> found(false);
-		std::promise<uintptr_t> promise;
-		auto future = promise.get_future();
+		//const auto starttime = std::chrono::steady_clock::now();
+		const auto _start = (byte*)start;
+		const auto _end = (byte*)end - pattern.size(); 
+		const auto pattern_size = pattern.size();
+		const auto &front = pattern.front(), &back = pattern.back();
+		const auto Match_Side = [&front, &back, &pattern_size](byte* data) {
+			if (front.iswild && back.iswild) return true;
+			if (!front.iswild && !back.iswild) {
+				return data[0] == front._byte && data[pattern_size - 1] == back._byte;
+			}
+			return (front.iswild || data[0] == front._byte) && (back.iswild || data[pattern_size - 1] == back._byte);
+		};
+		const auto Match_All = [&pattern, &pattern_size](byte* data) {
+			for (size_t i = 1; i < pattern_size - 1; i++) {
+				if (data[i] != pattern[i]._byte && !pattern[i].iswild) return false;
+			}
+			return true;
+		};
 
-		size_t thread_count = std::thread::hardware_concurrency();
-		size_t chunk_size = (_end - _start) / thread_count;
-
-		std::vector<std::future<void>> futures;
-		for (size_t i = 0; i < thread_count; ++i) {
-			auto* chunk_start = _start + i * chunk_size;
-			auto* chunk_end = (i == thread_count - 1) ? _end : chunk_start + chunk_size;
-
-			futures.push_back(std::async(std::launch::async, [&, chunk_start, chunk_end]() {
-				if (found) return;
-
-				auto address = std::search(chunk_start, chunk_end, pattern.begin(), pattern.end(),
-					[](const byte& a, const test& b) 
-					{ return b.iswild || a == b._byte; }
-				);
-
-				if (address != chunk_end && !found.exchange(true))
-					promise.set_value((uintptr_t)address);
-			}));
+		for (auto i = _start; i <= _end; i += 4) {
+			if (Match_Side(i) && Match_All(i)) { 
+				//auto endtime = std::chrono::steady_clock::now();
+				//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endtime - starttime);
+				//writelog("%ld", duration.count());
+				return start + (i - _start); 
+			}
 		}
 
-		future.wait();
-		return found ? future.get() : 0;
+		return 0;
 	}
 
 	template <typename Return, typename Type>
