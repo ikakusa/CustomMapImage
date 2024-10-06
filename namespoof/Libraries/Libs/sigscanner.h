@@ -74,9 +74,6 @@ namespace Memory {
 
 		for (auto i = _start; i <= _end; i += 4) {
 			if (Match_Side(i) && Match_All(i)) { 
-				//auto endtime = std::chrono::steady_clock::now();
-				//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endtime - starttime);
-				//writelog("%ld", duration.count());
 				return start + (i - _start); 
 			}
 		}
