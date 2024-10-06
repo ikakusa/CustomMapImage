@@ -10,6 +10,8 @@
 #include <ranges>
 #include <optional>
 #include <algorithm>
+#include <functional>
+#include <iterator>
 
 #define INRANGE(x,a,b)		(x >= a && x <= b) 
 #define getBits( x )		(INRANGE(x,'0','9') ? (x - '0') : ((x&(~0x20)) - 'A' + 0xa))
@@ -48,7 +50,8 @@ namespace Memory {
 	}
 
     static constexpr uintptr_t findSig(const length start, const length end, const signature pattern) {
-        if (start >= end || pattern.empty()) return 0;
+
+		if (start >= end || pattern.empty()) return 0;
 
         auto address = std::search((byte*)start, (byte*)(end - pattern.size() + 1), pattern.begin(), pattern.end(), 
             [](byte a, const test& b) 
