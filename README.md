@@ -24,3 +24,9 @@
 <img width="389" height="170" alt="image" src="https://github.com/user-attachments/assets/fe804368-8d6c-4ffd-899e-8a048d11d2e6" />
 
 画像の設定が完了したら 空の地図を使用して地図を作成し 手に持ちます
+
+しばらく待つと下の画像のようなメッセージが表示されます 表示されたら成功です
+
+<img width="370" height="123" alt="image" src="https://github.com/user-attachments/assets/a44780ef-5efd-481f-bd7e-ada7c2420488" />
+
+手に持っている状態ではただの地図ですが 額縁などに飾ると正しく設定した画像に切り替わります
