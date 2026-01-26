@@ -17,7 +17,10 @@
 ```
 <img width="772" height="74" alt="image" src="https://github.com/user-attachments/assets/014b37bc-157a-418d-bd02-a3e735cc0d2d" />
  
-<h2>※注意 画像のパスに"を含めるとNot Foundエラーが出ます</h2>
+**※注意 画像のパスに"を含めるとNot Foundエラーが出ます**
+
+ 正しく画像が設定されると下の画像のようなメッセージが表示されます
  
 <img width="389" height="170" alt="image" src="https://github.com/user-attachments/assets/fe804368-8d6c-4ffd-899e-8a048d11d2e6" />
 
+画像の設定が完了したら 空の地図を使用して地図を作成し 手に持ちます
