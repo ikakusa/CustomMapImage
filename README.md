@@ -43,11 +43,12 @@
 
 **A. メッセージが表示されない場合は 下に書いてあるフォルダのパスの中にある`logs.txt`にメッセージが書き込まれます**
 
-バグ報告などはIssueにお願いします
 ```
 %APPDATA%\Local\Packages\Microsoft.MinecraftUWP_8wekyb3d8bbwe\RoamingState
 ```
 </details>
+
+バグ報告などはIssueにお願いします
 
 # 参考
 [Shock95 bdsx-image-maps](https://github.com/Shock95/bdsx-image-maps)
