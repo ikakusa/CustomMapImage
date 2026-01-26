@@ -17,53 +17,6 @@ using namespace Windows::Data::Xml::Dom;
 using namespace Windows::UI::Notifications;
 #include <commdlg.h>
 
-static __forceinline std::wstring strToWstr(const std::string& str)
-{
-
-	std::wstring ret;
-	//一度目の呼び出しは文字列数を知るため
-	auto result = MultiByteToWideChar(CP_UTF8,
-		0,
-		str.c_str(),//入力文字列
-		str.length(),
-		nullptr,
-		0);
-	ret.resize(result);//確保する
-	//二度目の呼び出しは変換
-	result = MultiByteToWideChar(CP_UTF8,
-		0,
-		str.c_str(),//入力文字列
-		str.length(),
-		ret.data(),
-		ret.size());
-	return ret;
-}
-
-static std::string joinString(const std::vector<std::string>& vec, const std::string& delimiter) {
-	std::ostringstream os;
-	for (size_t i = 0; i < vec.size(); ++i) {
-		os << vec[i];
-		if (i < vec.size() - 1) {
-			os << delimiter;
-		}
-	}
-	return os.str();
-}
-
-static void toast(std::string str, std::string title = "CustomMapImage") {
-	try {
-		XmlDocument toastXml = ToastNotificationManager::GetTemplateContent(ToastTemplateType::ToastText02);
-		XmlNodeList textElements = toastXml.GetElementsByTagName(xorstr_(L"text"));
-		textElements.Item(0).InnerText(strToWstr(title));
-		textElements.Item(1).InnerText(strToWstr(str));
-		ToastNotification toast(toastXml);
-		data::toasts.push_back(toast);
-	}
-	catch (winrt::hresult_error const& ex) {
-		writelog("%s", str.c_str());
-	}
-}
-
 inline uint32_t RGBAtoABGR(
 	uint8_t r,
 	uint8_t g,
@@ -119,7 +72,7 @@ __int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
 			setMapData = false;
 			pixels.clear();
 			mapSize = 128;
-			toast("Successfully applied map image!");
+			data::toast("Successfully applied map image!");
 		}
 	}
 	return oFunc(_this, a);
@@ -154,11 +107,11 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 					char* end{};
 					mapSize = std::strtol(args[1].c_str(), &end, 10);
 					if (mapSize == 0 || args[1] == end) mapSize = 128;
-					filePath = joinString(std::vector<std::string>(args.begin() + 2, args.end()), " ");
+					filePath = data::joinString(std::vector<std::string>(args.begin() + 2, args.end()), " ");
 					int w, h, channels;
 					auto image = stbi_load(filePath.c_str(), &w, &h, &channels, 4);
 					if (!image) {
-						toast("File not found");
+						data::toast("File not found");
 						return 0;
 					}
 					for (int y = 0; y < mapSize; ++y) {
@@ -179,16 +132,16 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 						}
 					}
 					setMapData = true;
-					toast("Map data is now set to " + filePath + " !\nCreate an empty map to apply image!");
+					data::toast("Map data is now set to " + filePath + " !\nCreate an empty map to apply image!");
 					return 0;
 				}
 				else {
-					toast(".set_map <size> <filePath>");
+					data::toast(".set_map <size> <filePath>");
 					return 0;
 				}
 			}
 			else {
-				toast("Command not found");
+				data::toast("Command not found");
 			}
 			return 0;
 		}

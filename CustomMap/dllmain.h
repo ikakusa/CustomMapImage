@@ -42,6 +42,51 @@ public:
 		localPlayer = lp;
 	}
 	static inline std::vector<ToastNotification> toasts;
+	static __forceinline std::wstring strToWstr(const std::string& str)
+	{
+
+		std::wstring ret;
+		//一度目の呼び出しは文字列数を知るため
+		auto result = MultiByteToWideChar(CP_UTF8,
+			0,
+			str.c_str(),//入力文字列
+			str.length(),
+			nullptr,
+			0);
+		ret.resize(result);//確保する
+		//二度目の呼び出しは変換
+		result = MultiByteToWideChar(CP_UTF8,
+			0,
+			str.c_str(),//入力文字列
+			str.length(),
+			ret.data(),
+			ret.size());
+		return ret;
+	}
+
+	static __forceinline std::string joinString(const std::vector<std::string>& vec, const std::string& delimiter) {
+		std::ostringstream os;
+		for (size_t i = 0; i < vec.size(); ++i) {
+			os << vec[i];
+			if (i < vec.size() - 1) {
+				os << delimiter;
+			}
+		}
+		return os.str();
+	}
+	static __forceinline void toast(std::string str, std::string title = "CustomMapImage") {
+		try {
+			XmlDocument toastXml = ToastNotificationManager::GetTemplateContent(ToastTemplateType::ToastText02);
+			XmlNodeList textElements = toastXml.GetElementsByTagName(xorstr_(L"text"));
+			textElements.Item(0).InnerText(strToWstr(title));
+			textElements.Item(1).InnerText(strToWstr(str));
+			ToastNotification toast(toastXml);
+			data::toasts.push_back(toast);
+		}
+		catch (winrt::hresult_error const& ex) {
+			writelog("%s", str.c_str());
+		}
+	}
 };
 
 extern data gameData;
