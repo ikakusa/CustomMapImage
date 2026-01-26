@@ -1,5 +1,7 @@
 # このツールについて
 このツールはマップに任意の画像を設定できるツールです
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6f76f898-14b2-4801-b6d9-6be0cc843615" />
+
 
 # 使い方
 まず[リリースページ](https://github.com/releases/latest)からCustomMap.dllをダウンロードします
