@@ -30,3 +30,4 @@
 <img width="370" height="123" alt="image" src="https://github.com/user-attachments/assets/a44780ef-5efd-481f-bd7e-ada7c2420488" />
 
 手に持っている状態ではただの地図ですが 額縁などに飾ると正しく設定した画像に切り替わります
+
