@@ -14,7 +14,7 @@ __forceinline void writelog(const char* fmt, ...) {
 
     _dupenv_s(&value, &size, "APPDATA");
 
-    std::string roam = (value + std::string("\\..\\Local\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\RoamingState\\Milkyway\\Logs\\"));
+    std::string roam = (value + std::string("\\..\\Local\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\RoamingState\\"));
     std::string filePath = roam + "logs.txt";
 
     std::ofstream outputFile(filePath, std::ios::app);

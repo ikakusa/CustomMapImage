@@ -1,10 +1,8 @@
 #pragma once
-#include <sigscanner.h>
-
 class CompoundTag {
 
 };
 class ItemStack {
 public:
-	CompoundTag* getUserData();
+	BUILD_ACCESS(CompoundTag*, tag, 0x10);
 };

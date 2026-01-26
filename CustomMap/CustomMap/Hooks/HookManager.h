@@ -2,8 +2,7 @@
 #include "Hooks.h"
 
 //Hooks
-#include "ClientInstanceHook/ClientInstanceHook.h"
-#include "ActorHook/ActorHook.h"
+#include "ForMaps/MapItemHook.h"
 //
 class Hook;
 class HookManager {

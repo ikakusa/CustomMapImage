@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Actor.h"
-#include "Level.h"
-#include "ItemStack.h"
+#include "MapItemSavedData.h"
 #include "ClientInstance.h"
+#include "ItemStack.h"
+#include "Level.h"
+#include "Inventory.h"
+#include "Actor.h"

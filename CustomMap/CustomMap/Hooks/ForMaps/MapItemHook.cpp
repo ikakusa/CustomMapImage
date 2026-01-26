@@ -1,0 +1,204 @@
+#include "MapItemHook.h"
+#include "../../Logger/Logger.h"
+#include <sstream>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <winrt/Windows.UI.Notifications.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Data.Xml.Dom.h>
+#include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Windows.ApplicationModel.Core.h>
+#include <winrt/Windows.UI.Core.h>
+#include <atomic>
+#include <chrono>
+
+using namespace winrt;
+using namespace Windows::Data::Xml::Dom;
+using namespace Windows::UI::Notifications;
+#include <commdlg.h>
+
+static __forceinline std::wstring strToWstr(const std::string& str)
+{
+
+	std::wstring ret;
+	//一度目の呼び出しは文字列数を知るため
+	auto result = MultiByteToWideChar(CP_UTF8,
+		0,
+		str.c_str(),//入力文字列
+		str.length(),
+		nullptr,
+		0);
+	ret.resize(result);//確保する
+	//二度目の呼び出しは変換
+	result = MultiByteToWideChar(CP_UTF8,
+		0,
+		str.c_str(),//入力文字列
+		str.length(),
+		ret.data(),
+		ret.size());
+	return ret;
+}
+
+static std::string joinString(const std::vector<std::string>& vec, const std::string& delimiter) {
+	std::ostringstream os;
+	for (size_t i = 0; i < vec.size(); ++i) {
+		os << vec[i];
+		if (i < vec.size() - 1) {
+			os << delimiter;
+		}
+	}
+	return os.str();
+}
+
+static void toast(std::string str, std::string title = "CustomMapImage") {
+	try {
+		XmlDocument toastXml = ToastNotificationManager::GetTemplateContent(ToastTemplateType::ToastText02);
+		XmlNodeList textElements = toastXml.GetElementsByTagName(xorstr_(L"text"));
+		textElements.Item(0).InnerText(strToWstr(title));
+		textElements.Item(1).InnerText(strToWstr(str));
+		ToastNotification toast(toastXml);
+		data::toasts.push_back(toast);
+	}
+	catch (winrt::hresult_error const& ex) {
+		writelog("%s", str.c_str());
+	}
+}
+
+inline uint32_t RGBAtoABGR(
+	uint8_t r,
+	uint8_t g,
+	uint8_t b,
+	uint8_t a
+) {
+	return (uint32_t(a) << 24)
+		| (uint32_t(b) << 16)
+		| (uint32_t(g) << 8)
+		| uint32_t(r);
+}
+
+static int mapSize = 128;
+static std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
+static std::string filePath{};
+static std::vector<SimplePixel> pixels{};
+
+static bool setMapData = false;
+static bool hasUpdate = false;
+
+__int64 MapItemHook::save::handle(MapItemSavedData* _this, __int64* storage) {
+	static auto oFunc = funcPtr->GetFastcall<__int64, MapItemSavedData*, __int64*>();
+	using clock = std::chrono::steady_clock;
+	static bool threadStart = false;
+	if (setMapData) {
+		hasUpdate = true;
+		_this->applyPixels(pixels);
+		_this->setToLocked();
+		writelog("saved");
+	}
+	return oFunc(_this, storage);
+}
+
+__int64 LocalPlayerHook::normalTick::handle(LocalPlayer* _this) {
+	static auto oFunc = funcPtr->GetFastcall<__int64, LocalPlayer*>();
+	data::setLocalPlayer(_this);
+	return oFunc(_this);
+}
+
+__int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
+	static auto oFunc = funcPtr->GetFastcall<__int64, ClientInstance*, bool>();
+	data::setClientInstance(_this);
+	data::setGuiData(_this->guiData);
+	for (int i = 0; i < data::toasts.size(); i++) {
+		ToastNotificationManager::CreateToastNotifier().Show(data::toasts[i]);
+		data::toasts.erase(data::toasts.begin() + i);
+	}
+	if (setMapData && hasUpdate) {
+		auto now = std::chrono::steady_clock::now();
+		if (now - last >= std::chrono::seconds(1)) {
+			hasUpdate = false;
+			last = now;
+			setMapData = false;
+			pixels.clear();
+			mapSize = 128;
+			toast("Successfully applied map image!");
+		}
+	}
+	return oFunc(_this, a);
+}
+
+__int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _this, Packet* packet) {
+	static auto oFunc = funcPtr->GetFastcall<__int64, LoopbackPacketSender*, Packet*>();
+	auto lp = data::getLocalPlayer();
+	auto guidata = data::getGuiData();
+	if (!guidata || !lp || !packet) return oFunc(_this, packet);
+	if (packet->isTextPacket()) {
+		auto pkt = reinterpret_cast<TextPacket*>(packet);
+
+		auto& body = pkt->mBody.authorAndMessage;
+		std::string cmdTxt = body.message;
+		if (cmdTxt._Starts_with(".")) {
+			std::vector<std::string> args{};
+			std::istringstream iss(cmdTxt);
+			std::string s;
+			while (getline(iss, s, ' ')) {
+				args.push_back(s);
+			}
+			auto& command = args[0];
+			//.set_map 0
+			//128 1
+			//path 2~~
+			if (strcmp(command.c_str(), ".set_map") == 0) {
+				if (args.size() >= 3) {
+					pixels.clear();
+					auto level = lp->level;
+					auto supplies = lp->supplies;
+					char* end{};
+					mapSize = std::strtol(args[1].c_str(), &end, 10);
+					if (mapSize == 0 || args[1] == end) mapSize = 128;
+					filePath = joinString(std::vector<std::string>(args.begin() + 2, args.end()), " ");
+					int w, h, channels;
+					auto image = stbi_load(filePath.c_str(), &w, &h, &channels, 4);
+					if (!image) {
+						toast("File not found");
+						return 0;
+					}
+					for (int y = 0; y < mapSize; ++y) {
+						for (int x = 0; x < mapSize; ++x) {
+							int sx = x * w / mapSize;
+							int sy = y * h / mapSize;
+
+							unsigned char* p = &image[(sy * w + sx) * 4];
+							// p[0]=R p[1]=G p[2]=B p[3]=A
+
+							uint32_t abgr = RGBAtoABGR(p[0], p[1], p[2], p[3]);
+
+							pixels.push_back({
+								(int)abgr,
+								x,
+								y
+							});
+						}
+					}
+					setMapData = true;
+					toast("Map data is now set to " + filePath + " !\nCreate an empty map to apply image!");
+					return 0;
+				}
+				else {
+					toast(".set_map <size> <filePath>");
+					return 0;
+				}
+			}
+			else {
+				toast("Command not found");
+			}
+			return 0;
+		}
+	}
+	return oFunc(_this, packet);
+}
+
+// おきたらやることリスト
+//
+// 1. displayclientmessageのかわりにwindows notify 
+// 2. textpacketから.プレフィックスコマンド
+// 3. 持ってるマップアイテムを任意のタイミングでできるようにする
+// 4. 完成

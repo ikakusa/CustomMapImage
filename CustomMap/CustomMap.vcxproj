@@ -148,13 +148,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CustomMap\Hooks\ActorHook\ActorHook.h" />
-    <ClInclude Include="CustomMap\Hooks\ClientInstanceHook\ClientInstanceHook.h" />
+    <ClInclude Include="CustomMap\Hooks\ForMaps\MapItemHook.h" />
     <ClInclude Include="CustomMap\Logger\Logger.h" />
     <ClInclude Include="CustomMap\SDK\Actor.h" />
     <ClInclude Include="CustomMap\SDK\ClientInstance.h" />
+    <ClInclude Include="CustomMap\SDK\Inventory.h" />
     <ClInclude Include="CustomMap\SDK\ItemStack.h" />
     <ClInclude Include="CustomMap\SDK\Level.h" />
+    <ClInclude Include="CustomMap\SDK\MapItemSavedData.h" />
     <ClInclude Include="CustomMap\SDK\SDK.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="framework.h" />
@@ -170,17 +171,15 @@
     <ClInclude Include="Libraries\Libs\MinHook\MinHook.h" />
     <ClInclude Include="Libraries\Libs\MinHook\trampoline.h" />
     <ClInclude Include="Libraries\Libs\sigscanner.h" />
+    <ClInclude Include="Libraries\Libs\stb_image.h" />
+    <ClInclude Include="Libraries\Libs\stb_image_resize2.h" />
     <ClInclude Include="Libraries\Libs\xorstr.hpp" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="CustomMap\Hooks\HookManager.h" />
     <ClInclude Include="CustomMap\Hooks\Hooks.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CustomMap\Hooks\ActorHook\ActorHook.cpp" />
-    <ClCompile Include="CustomMap\Hooks\ClientInstanceHook\ClientInstanceHook.cpp" />
-    <ClCompile Include="CustomMap\SDK\Actor.cpp" />
-    <ClCompile Include="CustomMap\SDK\ItemStack.cpp" />
-    <ClCompile Include="CustomMap\SDK\Level.cpp" />
+    <ClCompile Include="CustomMap\Hooks\ForMaps\MapItemHook.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Libraries\Libs\MemUtils.cpp" />
     <ClCompile Include="Libraries\Libs\MinHook\buffer.cpp" />

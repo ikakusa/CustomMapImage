@@ -3,12 +3,20 @@
 #include "CustomMap/Hooks/HookManager.h"
 #include <cassert>
 
-DWORD WINAPI init(LPVOID lpParam) {
 
+auto GetDllMod(void) -> HMODULE {
+    MEMORY_BASIC_INFORMATION info;
+    size_t len = VirtualQueryEx(GetCurrentProcess(), (void*)GetDllMod, &info, sizeof(info));
+    assert(len == sizeof(info));
+    return len ? (HMODULE)info.AllocationBase : NULL;
+}
+
+DWORD WINAPI init(LPVOID lpParam) {
     MH_Initialize();
     HookManager::initHooks();
     return 1;
 }
+static bool initialized = false;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,

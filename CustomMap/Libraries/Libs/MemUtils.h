@@ -7,7 +7,7 @@
 #include "xorstr.hpp"
 class FuncHook;
 class MemoryUtils {
-private:
+public:
 	static uintptr_t getBase() {
 		static uintptr_t mc = reinterpret_cast<uintptr_t>(GetModuleHandleA("Minecraft.Windows.exe"));
 		return mc;
