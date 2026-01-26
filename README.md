@@ -39,9 +39,9 @@
 </details>
 
 <details>
-<summary><h2>**Q. 右下にメッセージが表示されない**</h2></summary>
+<summary><h2>Q. 右下にメッセージが表示されない</h2></summary>
 
-A. メッセージが表示されない場合は 下に書いてあるフォルダのパスの中にある`logs.txt`にメッセージが書き込まれます
+**A. メッセージが表示されない場合は 下に書いてあるフォルダのパスの中にある`logs.txt`にメッセージが書き込まれます**
 ```
 %APPDATA%\Local\Packages\Microsoft.MinecraftUWP_8wekyb3d8bbwe\RoamingState
 ```
