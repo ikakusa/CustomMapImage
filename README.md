@@ -10,4 +10,10 @@
 
 ダウンロードが完了したら [FateInjector](https://github.com/fligger/FateInjector) などのインジェクターを使用してマイクラ上にdllをインジェクトしてください
 
-インジェクトが完了したら
+インジェクトが完了したらチャットを開き次のようなコマンドを使用します
+
+```
+.set_map <size> <file_path>
+
+```
+![Uploading image.png…]()
