@@ -52,3 +52,6 @@
 
 # 参考
 [Shock95 bdsx-image-maps](https://github.com/Shock95/bdsx-image-maps)
+
+# ライセンス
+このツールは MIT License のもとで公開されています。
