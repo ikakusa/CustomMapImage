@@ -47,3 +47,6 @@
 %APPDATA%\Local\Packages\Microsoft.MinecraftUWP_8wekyb3d8bbwe\RoamingState
 ```
 </details>
+
+# 参考
+[Shock95 bdsx-image-maps](https://github.com/Shock95/bdsx-image-maps)
