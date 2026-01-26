@@ -13,7 +13,8 @@
 インジェクトが完了したらチャットを開き次のようなコマンドを使用します
 
 ```
-.set_map <size> <file_path>
+.set_map <マップのサイズ(128)> <画像ファイルのパス>
 ```
 <img width="772" height="74" alt="image" src="https://github.com/user-attachments/assets/014b37bc-157a-418d-bd02-a3e735cc0d2d" />
 
+<h2>※注意 画像のパスに"を含めるとNot Foundエラーが出ます</h2>
