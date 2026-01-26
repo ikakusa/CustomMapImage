@@ -35,13 +35,14 @@
 <details>
 <summary><h2>Q. ワールドに入りなおしたり時間経過で地図が元の地形の表示に戻ってしまった</h2></summary>
 
-**A. 座標１０万など普段はロードしない距離で地図を作成して画像を設定することで対処できます
+**A. 座標１０万など普段はロードしない距離で地図を作成して画像を設定することで対処できます**
 </details>
 
 <details>
 <summary><h2>Q. 右下にメッセージが表示されない</h2></summary>
 
 **A. メッセージが表示されない場合は 下に書いてあるフォルダのパスの中にある`logs.txt`にメッセージが書き込まれます**
+
 ```
 %APPDATA%\Local\Packages\Microsoft.MinecraftUWP_8wekyb3d8bbwe\RoamingState
 ```
