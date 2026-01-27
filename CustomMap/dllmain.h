@@ -16,6 +16,13 @@ using namespace winrt;
 using namespace Windows::Data::Xml::Dom;
 using namespace Windows::UI::Notifications;
 
+struct ToastData {
+public:
+	std::string message;
+	ToastNotification toast;
+	ToastData(std::string a, ToastNotification notif) : message(a), toast(notif) {};
+};
+
 class data {
 private:
 	static inline ClientInstance* clientInstance = nullptr;
@@ -41,7 +48,7 @@ public:
 	static void setLocalPlayer(LocalPlayer* lp) {
 		localPlayer = lp;
 	}
-	static inline std::vector<ToastNotification> toasts;
+	static inline std::vector<ToastData> toasts;
 	static __forceinline std::wstring strToWstr(const std::string& str)
 	{
 
@@ -81,9 +88,9 @@ public:
 			textElements.Item(0).InnerText(strToWstr(title));
 			textElements.Item(1).InnerText(strToWstr(str));
 			ToastNotification toast(toastXml);
-			data::toasts.push_back(toast);
+			data::toasts.push_back(ToastData(str, toast));
 		}
-		catch (winrt::hresult_error const& ex) {
+		catch (...) {
 			writelog("%s", str.c_str());
 		}
 	}

@@ -61,7 +61,12 @@ __int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
 	data::setClientInstance(_this);
 	data::setGuiData(_this->guiData);
 	for (int i = 0; i < data::toasts.size(); i++) {
-		ToastNotificationManager::CreateToastNotifier().Show(data::toasts[i]);
+		try {
+			ToastNotificationManager::CreateToastNotifier().Show(data::toasts[i].toast);
+		}
+		catch (...) {
+			writelog("%s", data::toasts[i].message);
+		}
 		data::toasts.erase(data::toasts.begin() + i);
 	}
 	if (setMapData && hasUpdate) {
