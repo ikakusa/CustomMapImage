@@ -3,4 +3,3 @@
 #include <Windows.h>
 #include "Libs/xorstr.hpp"
 #include <MinHook/MinHook.h>
-#include <libhat.hpp>

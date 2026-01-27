@@ -3,11 +3,11 @@
 #include <memory>
 #include <Psapi.h>
 #include <string>
+#include <sigscanner.h>
 #include "xorstr.hpp"
-#include <libhat/scanner.hpp>
 class FuncHook;
 class MemoryUtils {
-public:
+private:
 	static uintptr_t getBase() {
 		static uintptr_t mc = reinterpret_cast<uintptr_t>(GetModuleHandleA("Minecraft.Windows.exe"));
 		return mc;
@@ -26,17 +26,10 @@ public:
 	static inline bool isInitialized = false;
 	static void init();
 	static void restore();
-public:
-	static uintptr_t findSig(std::string_view signature) {
-		const auto parsed = hat::parse_signature(signature);
-		static const auto begin = reinterpret_cast<std::byte*>(getBase());
-		static const auto end = begin + GetMinecraftSize();
-		const auto result = hat::find_pattern(begin, end, parsed.value());
 
-		if (!result.has_result()) return 0;
-		return reinterpret_cast<uintptr_t>(result.get());
-	}
-	static uintptr_t** getVtable(const char* szSignature, int offset = 3) {
+public:
+	static uintptr_t findSig(std::string_view signature);
+	static uintptr_t** getVtable(const char* szSignature, int offset) {
 		uintptr_t** signatureOffset = 0x0;
 		if (signatureOffset == 0x0) {
 			uintptr_t sigOffset = findSig(szSignature);
