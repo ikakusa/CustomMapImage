@@ -61,20 +61,4 @@ public:
 			*(uint8_t*)(base + 123) = 1;
 		}
 	}
-
-	void save(LevelStorage* st) {
-		using save = void(__fastcall*)(MapItemSavedData*, LevelStorage*);
-		//uintptr_t sigg = SigScan("48 89 5C 24 18 55 56 57 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 27 48 8B FA 48 8B F1 0F");
-		static save waa = reinterpret_cast<save>((uintptr_t)(MemoryUtils::getBase() + 0x5D70380));
-		return waa(this, st);
-	}
-
-	void forceUnlock() {
-		auto base = reinterpret_cast<uint8_t*>(this);
-		if (*(uint8_t*)(base + 123) == 1)
-		{
-			*(uint16_t*)(base + 121) = 257;
-			*(uint8_t*)(base + 123) = 0;
-		}
-	}
 };
