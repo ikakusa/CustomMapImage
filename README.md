@@ -30,7 +30,7 @@
 
 しばらく待つと下の画像のようなメッセージが表示されます 表示されたら成功です
 
-<img width="370" height="123" alt="image" src="https://github.com/user-attachments/assets/a44780ef-5efd-481f-bd7e-ada7c2420488" />
+<img width="762" height="68" alt="image" src="https://github.com/user-attachments/assets/688533c9-f978-4a94-a21b-8cddcf1374f8" />
 
 手に持っている状態ではただの地図ですが 額縁などに飾ると正しく設定した画像に切り替わります
 
