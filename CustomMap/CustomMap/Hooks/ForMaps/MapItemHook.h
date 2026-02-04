@@ -29,6 +29,20 @@ namespace LocalPlayerHook {
 	};
 }
 
+namespace MinecraftGameHook {
+	class update : public Hook {
+	private:
+		static inline std::unique_ptr<FuncHook> funcPtr;
+	public:
+		update() : Hook("MinecraftGame::update") {};
+		static __int64 handle(MinecraftGame* _this);
+		bool Initialize() override {
+			uintptr_t address = SigScan("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 08 FF FF FF 48 81 EC D0 01 00 00 0F 29 70 C8 0F 29 78 B8 48 8B 05");
+			return CreateHook(funcPtr, address, handle);
+		}
+	};
+}
+
 namespace ClientInstanceHook {
 	class update : public Hook {
 	private:

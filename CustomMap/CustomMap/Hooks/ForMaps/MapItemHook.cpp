@@ -45,9 +45,16 @@ __int64 MapItemHook::save::handle(MapItemSavedData* _this, __int64* storage) {
 		hasUpdate = true;
 		_this->applyPixels(pixels);
 		_this->setToLocked();
-		writelog("saved");
+		writelog("saved %p", storage);
 	}
 	return oFunc(_this, storage);
+}
+
+__int64 MinecraftGameHook::update::handle(MinecraftGame* _this) {
+	static auto oFunc = funcPtr->GetFastcall<__int64, MinecraftGame*>();
+	data::setMCGame(_this);
+	data::setLS(_this->getLevelStorage());
+	return oFunc(_this);
 }
 
 __int64 LocalPlayerHook::normalTick::handle(LocalPlayer* _this) {

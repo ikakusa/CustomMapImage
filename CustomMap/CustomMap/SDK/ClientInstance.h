@@ -330,8 +330,44 @@ public:
     };
 };
 
+class LevelStorage;
+class LevelStorageOBJ {
+public:
+    BUILD_ACCESS(LevelStorage*, levelStorage, 0x10);
+};
+class Storage2 {
+public:
+    BUILD_ACCESS(LevelStorageOBJ*, obj, 0x78);
+    LevelStorage* getLevelStorage() {
+        if (!obj) return nullptr;
+        return obj->levelStorage;
+    }
+};
+
+class Storage1 {
+public:
+    BUILD_ACCESS(Storage2*, s2, 0x40); //1.21.132
+};
+
+/*
+LevelStorageとりかた
+MapItemSavedData::saveをフックして第２引数からlevelstorageのアドレスをとる
+ceでそのアドレスにアクセスしている関数を見つけるとMinecraftGame::updateが大量にアクセスしてくるのが見える
+MinecraftGame::updateに飛ぶ->v1(MinecraftGame*) + 0x???となってるところからいっぱいもってきて終わり
+*/
+class MinecraftGame {
+public:
+    BUILD_ACCESS(Storage1*, s1, 0xB8); //1.21.132
+public:
+    LevelStorage* getLevelStorage() {
+        if (!this->s1) return nullptr;
+        if (!this->s1->s2) return nullptr;
+        return this->s1->s2->getLevelStorage();
+    }
+};
+
 class ClientInstance {
 public:
-    BUILD_ACCESS(GuiData*, guiData, 0x648);
-    BUILD_ACCESS(LoopbackPacketSender*, packetSender, 0x1C8);
+    BUILD_ACCESS(GuiData*, guiData, 0x648); //1.21.132
+    BUILD_ACCESS(LoopbackPacketSender*, packetSender, 0x1C8); //1.21.132
 };

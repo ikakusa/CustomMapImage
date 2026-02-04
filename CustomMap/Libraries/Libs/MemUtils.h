@@ -26,7 +26,23 @@ public:
 	static inline bool isInitialized = false;
 	static void init();
 	static void restore();
+public:
+	static inline bool isReadable(uintptr_t ptr_addr) {
+		void* ptr = reinterpret_cast<void*>(ptr_addr);
+		if (!ptr) return false;
 
+		MEMORY_BASIC_INFORMATION mbi;
+		// メモリの情報を取得
+		if (VirtualQuery(ptr, &mbi, sizeof(mbi)) == 0) return false;
+
+		// 状態が「COMMIT（割り当て済み）」かつ
+		// 保護属性が「NOACCESS」や「GUARD」ではないことを確認
+		if (mbi.State != MEM_COMMIT) return false;
+		if (mbi.Protect & (PAGE_NOACCESS | PAGE_GUARD)) return false;
+
+		// 読み取り許可（READONLY, READWRITE, EXECUTE_READ 等）があるか
+		return (mbi.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE));
+	}
 public:
 	static uintptr_t findSig(std::string_view signature);
 	static uintptr_t** getVtable(const char* szSignature, int offset) {

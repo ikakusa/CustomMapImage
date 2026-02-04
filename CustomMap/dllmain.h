@@ -35,6 +35,8 @@ private:
 	static inline ClientInstance* clientInstance = nullptr;
 	static inline LocalPlayer* localPlayer = nullptr;
 	static inline GuiData* guiData = nullptr;
+	static inline MinecraftGame* mcGame = nullptr;
+	static inline LevelStorage* levelStorage = nullptr;
 public:
 	static ClientInstance* getClientInstance() {
 		return clientInstance;
@@ -45,6 +47,12 @@ public:
 	static GuiData* getGuiData() {
 		return guiData;
 	}
+	static MinecraftGame* getMCGame() {
+		return mcGame;
+	}
+	static LevelStorage* getLS() {
+		return levelStorage;
+	}
 public:
 	static void setClientInstance(ClientInstance* ci) {
 		clientInstance = ci;
@@ -52,8 +60,14 @@ public:
 	static void setGuiData(GuiData* gd) {
 		guiData = gd;
 	}
+	static void setLS(LevelStorage* ls) {
+		levelStorage = ls;
+	}
 	static void setLocalPlayer(LocalPlayer* lp) {
 		localPlayer = lp;
+	}
+	static void setMCGame(MinecraftGame* mg) {
+		mcGame = mg;
 	}
 	static inline std::vector<ToastData> toasts;
 	static inline std::string getFormatted(const char* str, ...) {
