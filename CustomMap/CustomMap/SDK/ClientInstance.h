@@ -369,5 +369,6 @@ public:
 class ClientInstance {
 public:
     BUILD_ACCESS(GuiData*, guiData, 0x648); //1.21.132
+    BUILD_ACCESS(MinecraftGame*, mcGame, 0x1A0); //1.21.132
     BUILD_ACCESS(LoopbackPacketSender*, packetSender, 0x1C8); //1.21.132
 };

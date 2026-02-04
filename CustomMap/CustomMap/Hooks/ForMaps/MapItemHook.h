@@ -13,6 +13,17 @@ namespace MapItemHook {
 			return CreateHook(funcPtr, address, handle);
 		}
 	};
+	class onSave : public Hook { //ituka tukau
+	private:
+		static inline std::unique_ptr<FuncHook> funcPtr;
+	public:
+		onSave() : Hook("MapDataManager::onSaveLevelData") {};
+		static __int64 handle(MapDataManager* a1, LevelStorage* a2);
+		bool Initialize() override {
+			uintptr_t address = SigScan("48 89 5C 24 18 48 89 6C 24 20 57 48 83 EC 20 48 8B 79 78");
+			return CreateHook(funcPtr, address, handle);
+		}
+	};
 }
 
 namespace LocalPlayerHook {
