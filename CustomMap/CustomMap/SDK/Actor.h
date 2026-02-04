@@ -6,6 +6,14 @@ class GameMode;
 class Actor {
 public:
     BUILD_ACCESS(Level*, level, 0x1D8); //1.21.132
+	//std::string getNametag() //1.21.132
+	//{
+	//	std::string a;
+	//	using fn = __int64(__thiscall*)(Actor*, std::string*);
+	//	auto funfun = reinterpret_cast<fn>(SigScan("48 89 5C 24 08 48 89 74 24 18 48 89 7C 24 20 55 41 56 41 57 48 8D 6C 24 B9 48 81 EC E0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 3F 48 8B F2"));
+	//	funfun(this, &a);
+	//	return a;
+	//}
 };
 
 class Player : public Actor {

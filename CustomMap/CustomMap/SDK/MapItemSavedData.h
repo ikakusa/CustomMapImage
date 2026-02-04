@@ -34,8 +34,8 @@ public:
 			auto* taEnd = *(__int64**)((char*)map + 0x40);
 
 			for (auto* it = taBegin; it != taEnd; it += 2) {
-				char* actor = (char*)*it;
 				if (!*it) continue;
+				char* actor = (char*)*it;
 
 				if (*(bool*)(actor + 32)) {
 					*(int*)(actor + 36) = std::min(*(int*)(actor + 36), p.x);

@@ -60,12 +60,21 @@ __int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
 	static auto oFunc = funcPtr->GetFastcall<__int64, ClientInstance*, bool>();
 	data::setClientInstance(_this);
 	data::setGuiData(_this->guiData);
+	static bool hasNotice = false;
+	if (!hasNotice) {
+		data::toast(data::getFormatted("%sCustomMapImage has been injected!", COLOR_E));
+		hasNotice = true;
+	}
 	for (int i = 0; i < data::toasts.size(); i++) {
+		auto toast = data::toasts[i];
 		try {
-			ToastNotificationManager::CreateToastNotifier().Show(data::toasts[i].toast);
+			if (toast.display) {
+				data::getGuiData()->displayClientMessage("%s<%s%s%s> %s", COLOR_H, COLOR_E, toast.title.c_str(), COLOR_H, toast.message.c_str());
+			} else
+				ToastNotificationManager::CreateToastNotifier().Show(toast.toast);
 		}
 		catch (...) {
-			writelog("%s", data::toasts[i].message);
+			writelog("<%s> %s", toast.title.c_str(), toast.message.c_str());
 		}
 		data::toasts.erase(data::toasts.begin() + i);
 	}
@@ -77,7 +86,7 @@ __int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
 			setMapData = false;
 			pixels.clear();
 			mapSize = 128;
-			data::toast("Successfully applied map image!");
+			data::toast(data::getFormatted("%sSuccessfully applied to map image!", COLOR_E));
 		}
 	}
 	return oFunc(_this, a);
@@ -116,7 +125,7 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 					int w, h, channels;
 					auto image = stbi_load(filePath.c_str(), &w, &h, &channels, 4);
 					if (!image) {
-						data::toast("File not found");
+						data::toast(data::getFormatted("%sFile not found", COLOR_C));
 						return 0;
 					}
 					for (int y = 0; y < mapSize; ++y) {
@@ -137,26 +146,19 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 						}
 					}
 					setMapData = true;
-					data::toast("Map data is now set to " + filePath + " !\nCreate an empty map to apply image!");
+					data::toast(data::getFormatted("%sMap data is now set to %s%s!\n%sCreate an empty map to apply image!", COLOR_E, COLOR_H, filePath.c_str(), COLOR_E));
 					return 0;
 				}
 				else {
-					data::toast(".set_map <size> <filePath>");
+					data::toast(data::getFormatted("%s.set_map <size> <filePath>", COLOR_C));
 					return 0;
 				}
 			}
 			else {
-				data::toast("Command not found");
+				data::toast(data::getFormatted("%sCommand not found", COLOR_C));
 			}
 			return 0;
 		}
 	}
 	return oFunc(_this, packet);
 }
-
-// おきたらやることリスト
-//
-// 1. displayclientmessageのかわりにwindows notify 
-// 2. textpacketから.プレフィックスコマンド
-// 3. 持ってるマップアイテムを任意のタイミングでできるようにする
-// 4. 完成

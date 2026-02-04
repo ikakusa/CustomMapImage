@@ -229,11 +229,11 @@ class Packet {
 public:
     uintptr_t** vTable;
 public:
-	std::string getName() {
-		std::string str = "";
-		CallVFunc<2, std::string*>(this, &str);
-		return str;
-	}
+    std::string getName() {
+        std::string str = "";
+        CallVFunc<2, std::string*>(this, &str);
+        return str;
+    }
     static uintptr_t** getVTableFromID(MinecraftPacketIds id) {
         return MinecraftPackets::createPacket(id).get()->vTable;
     }
@@ -246,64 +246,96 @@ class PayloadPacket : public Packet, public payloadTemplate {
 };
 
 enum class TextPacketType {
-	RAW = 0,
-	CHAT = 1,
-	TRANSLATION = 2,
-	POPUP = 3,
-	JUKEBOX_POPUP = 4,
-	TIP = 5,
-	SYSTEM = 6,
-	WHISPER = 7,
-	ANNOUNCEMENT = 8,
-	JSON_WHISPER = 9,
-	JSON = 10,
-	JSON_ANNOUNCEMENT = 11
+    RAW = 0,
+    CHAT = 1,
+    TRANSLATION = 2,
+    POPUP = 3,
+    JUKEBOX_POPUP = 4,
+    TIP = 5,
+    SYSTEM = 6,
+    WHISPER = 7,
+    ANNOUNCEMENT = 8,
+    JSON_WHISPER = 9,
+    JSON = 10,
+    JSON_ANNOUNCEMENT = 11
 };
+
+//struct TextPacketPayload {
+//public:
+//    struct MessageOnly {
+//        std::string mMessage;                    // 0x00
+//        char pad_0x8[0x8];                       // 0x20
+//    };
+//
+//    struct AuthorAndMessage {
+//        std::string mAuthor;                     // 0x00
+//        char pad_0x8_1[0x8];                     // 0x20
+//        std::string mMessage;                    // 0x28
+//        char pad_0x8_2[0x8];                     // 0x48
+//    };
+//
+//    struct MessageAndParams {
+//        std::string mMessage;                    // 0x00
+//        char pad_0x8_1[0x8];                     // 0x20
+//        std::vector<std::string> mParams;        // 0x28
+//    };
+//
+//    // ===== main payload =====
+//
+//    bool mLocalize;                              // 0x00
+//    char pad2[7];                                // 0x01
+//    std::string mXuid;                           // 0x08
+//    char pad_0x8_1[0x8];                         // 0x28
+//    std::string mPlatformId;                     // 0x30
+//    char pad_0x8_2[0x8];                         // 0x50
+//    std::optional<std::string> mFilteredMessage; // 0x58
+//
+//    struct BodyRaw {
+//        TextPacketType type;
+//
+//        union {
+//            MessageOnly messageOnly;
+//            AuthorAndMessage authorAndMessage;
+//            MessageAndParams messageAndParams;
+//        } a;
+//    } mBody;
+//};
 
 struct TextPacketPayload {
 public:
-    struct MessageOnly {
-        TextPacketType mType;     // 0x00
-        std::string mMessage;     // 0x08
-    };
-
-    struct AuthorAndMessage {
-        TextPacketType mType;     // 0x00
-        std::string mAuthor;      // 0x08
-        std::string mMessage;     // 0x28
-    };
-
-    struct MessageAndParams {
-        TextPacketType mType;                 // 0x00
-        std::string mMessage;                 // 0x08
-        std::vector<std::string> mParams;     // 0x28
-    };
-
-    // ===== main payload =====
-
-    bool mLocalize;               // 0x00
-    char pad2[7];
-
-    std::string mXuid;            // 0x08
-    std::string mPlatformId;      // 0x28
-    std::optional<std::string> mFilteredMessage; // 0x48
+    bool mLocalize;
+    char pad[0x7];
+    std::string mXuid;
+    char pad1[0x8];
+    std::string mPlatformId;
+    char pad2[0x8];
+    std::optional<std::string> mFilteredMessage;
+    char pad3[0x8];
 
     struct BodyRaw {
         TextPacketType type;
 
         union {
             struct {
+                char pad[8];
                 std::string message;
+                char pad2[8];
             } messageOnly;
 
             struct {
+                char pad[8];
                 std::string author;
+                char pad2[8];
                 std::string message;
+                char pad3[8];
             } authorAndMessage;
 
             struct {
+                char pad[8];
                 std::string message;
+                char pad2[0x8];
                 std::vector<std::string> params;
+                char pad3[0x8];
             } messageAndParams;
         };
     } mBody;
@@ -320,29 +352,27 @@ public:
 
 class GuiData {
 public:
-	void displayClientMessage(const char* str, ...) {
-		va_list arg;
-		va_start(arg, str);
-		int lengthNeeded = _vscprintf(str, arg) + 1;
-		if (lengthNeeded >= 300) {
-			va_end(arg);
-			return;
-		}
-		char message[300];
-		vsnprintf_s(message, sizeof(message), _TRUNCATE, str, arg);
-		const std::string& msg(message);
-
-		char nansukakore[0x28]{};
-
-		using func_t = void(*)(GuiData*, const std::string&, char*, bool);
-		static auto func = reinterpret_cast<func_t>(SigScan("40 55 53 56 57 41 56 48 8D AC 24 A0 FE")); //1.21.132
-		func(this, msg, nansukakore, true);
-		va_end(arg);
-	};
+    void displayClientMessage(const char* str, ...) {
+        va_list arg;
+        va_start(arg, str);
+        int lengthNeeded = _vscprintf(str, arg) + 1;
+        if (lengthNeeded >= 300) {
+            va_end(arg);
+            return;
+        }
+        char message[300];
+        vsnprintf_s(message, sizeof(message), _TRUNCATE, str, arg);
+        const std::string& msg(message);
+        const std::optional<std::string>& filtered(msg);
+        using func_t = void(*)(GuiData*, const std::string&, const std::optional<std::string>&, bool);
+        static auto func = reinterpret_cast<func_t>(SigScan("40 55 53 56 57 41 56 48 8D AC 24 A0 FE")); //1.21.132
+        func(this, msg, filtered, true);
+        va_end(arg);
+    };
 };
 
 class ClientInstance {
 public:
-	BUILD_ACCESS(GuiData*, guiData, 0x648);
+    BUILD_ACCESS(GuiData*, guiData, 0x648);
     BUILD_ACCESS(LoopbackPacketSender*, packetSender, 0x1C8);
 };

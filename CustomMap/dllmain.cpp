@@ -14,7 +14,7 @@ auto GetDllMod(void) -> HMODULE {
 DWORD WINAPI init(LPVOID lpParam) {
     MH_Initialize();
     HookManager::initHooks();
-    data::toast("CustomMapImage has been injected!");
+    data::toast("CustomMapImage has been injected!", false);
     return 1;
 }
 static bool initialized = false;

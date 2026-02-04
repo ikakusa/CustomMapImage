@@ -18,10 +18,17 @@ using namespace Windows::UI::Notifications;
 
 struct ToastData {
 public:
+	std::string title;
 	std::string message;
 	ToastNotification toast;
-	ToastData(std::string a, ToastNotification notif) : message(a), toast(notif) {};
+	bool display;
+	ToastData(std::string a, std::string title, ToastNotification notif, bool display) : message(a), title(title), toast(notif), display(display) {};
 };
+
+#define COLOR_H "ﾂｧh"
+#define COLOR_E "ﾂｧe"
+#define COLOR_C "ﾂｧc"
+#define COLOR_4 "ﾂｧ4"
 
 class data {
 private:
@@ -49,7 +56,21 @@ public:
 		localPlayer = lp;
 	}
 	static inline std::vector<ToastData> toasts;
-	static __forceinline std::wstring strToWstr(const std::string& str)
+	static inline std::string getFormatted(const char* str, ...) {
+		va_list arg;
+		va_start(arg, str);
+		int lengthNeeded = _vscprintf(str, arg) + 1;
+		if (lengthNeeded >= 1000) {
+			va_end(arg);
+			return "";
+		}
+		char message[1000];
+		vsnprintf_s(message, sizeof(message), _TRUNCATE, str, arg);
+		const std::string& msg(message);
+		va_end(arg);
+		return msg;
+	}
+	static inline std::wstring strToWstr(const std::string& str)
 	{
 
 		std::wstring ret;
@@ -81,14 +102,14 @@ public:
 		}
 		return os.str();
 	}
-	static __forceinline void toast(std::string str, std::string title = "CustomMapImage") {
+	static __forceinline void toast(std::string str, bool displayMessage = true, std::string title = "CustomMapImage") {
 		try {
 			XmlDocument toastXml = ToastNotificationManager::GetTemplateContent(ToastTemplateType::ToastText02);
 			XmlNodeList textElements = toastXml.GetElementsByTagName(xorstr_(L"text"));
 			textElements.Item(0).InnerText(strToWstr(title));
 			textElements.Item(1).InnerText(strToWstr(str));
 			ToastNotification toast(toastXml);
-			data::toasts.push_back(ToastData(str, toast));
+			data::toasts.push_back(ToastData(str, title, toast, displayMessage));
 		}
 		catch (...) {
 			writelog("%s", str.c_str());
