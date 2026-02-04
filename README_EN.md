@@ -28,14 +28,14 @@ If the image path contains quotation marks (`"`), a **Not Found** error will occ
 
 If the image is set correctly, a message like the one below will be displayed:
 
-<img width="389" height="170" alt="image" src="https://github.com/user-attachments/assets/fe804368-8d6c-4ffd-899e-8a048d11d2e6" />
+<img width="770" height="107" alt="image" src="https://github.com/user-attachments/assets/ee1b167a-b13b-4a06-9a13-fd87724b8fd1" />
 
 After setting the image, create a map using an **empty map** and hold it in your hand.
 
 After waiting for a short time, a message like the one below will appear.  
 If you see this message, the process was successful.
 
-<img width="370" height="123" alt="image" src="https://github.com/user-attachments/assets/a44780ef-5efd-481f-bd7e-ada7c2420488" />
+<img width="762" height="68" alt="image" src="https://github.com/user-attachments/assets/ffa1e217-36be-4865-9d8d-43393346179b" />
 
 While holding the map, it will appear as a normal map.  
 However, once you place it in an item frame or similar, it will switch to the correctly configured image.
