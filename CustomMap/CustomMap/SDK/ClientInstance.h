@@ -260,47 +260,6 @@ enum class TextPacketType {
     JSON_ANNOUNCEMENT = 11
 };
 
-//struct TextPacketPayload {
-//public:
-//    struct MessageOnly {
-//        std::string mMessage;                    // 0x00
-//        char pad_0x8[0x8];                       // 0x20
-//    };
-//
-//    struct AuthorAndMessage {
-//        std::string mAuthor;                     // 0x00
-//        char pad_0x8_1[0x8];                     // 0x20
-//        std::string mMessage;                    // 0x28
-//        char pad_0x8_2[0x8];                     // 0x48
-//    };
-//
-//    struct MessageAndParams {
-//        std::string mMessage;                    // 0x00
-//        char pad_0x8_1[0x8];                     // 0x20
-//        std::vector<std::string> mParams;        // 0x28
-//    };
-//
-//    // ===== main payload =====
-//
-//    bool mLocalize;                              // 0x00
-//    char pad2[7];                                // 0x01
-//    std::string mXuid;                           // 0x08
-//    char pad_0x8_1[0x8];                         // 0x28
-//    std::string mPlatformId;                     // 0x30
-//    char pad_0x8_2[0x8];                         // 0x50
-//    std::optional<std::string> mFilteredMessage; // 0x58
-//
-//    struct BodyRaw {
-//        TextPacketType type;
-//
-//        union {
-//            MessageOnly messageOnly;
-//            AuthorAndMessage authorAndMessage;
-//            MessageAndParams messageAndParams;
-//        } a;
-//    } mBody;
-//};
-
 struct TextPacketPayload {
 public:
     bool mLocalize;
