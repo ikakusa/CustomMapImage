@@ -124,7 +124,18 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 				if (args.size() >= 3) {
 					pixels.clear();
 					auto level = lp->level;
+					auto ls = data::getLS();
+					auto mapDataManager = level->getMapDataManager();
 					auto supplies = lp->supplies;
+					auto item = lp->getSelectedItem();
+					//if (!item || !level->getMapSavedData(item->tag)) {
+					//	data::toast(data::getFormatted("%sHold the map!", COLOR_C));
+					//	return 0;
+					//}
+					//if (!ls) {
+					//	data::toast(data::getFormatted("%sLevelStorage is null!\ntry again", COLOR_C));
+					//	return 0;
+					//}
 					char* end{};
 					mapSize = std::strtol(args[1].c_str(), &end, 10);
 					if (mapSize == 0 || args[1] == end) mapSize = 128;
@@ -152,6 +163,27 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 							});
 						}
 					}
+
+					//auto mapData = level->getMapSavedData(item->tag);
+					//uintptr_t* mapList = *reinterpret_cast<uintptr_t**>((uintptr_t)mapDataManager + 0x78);
+
+					//if (mapList != nullptr) {
+					//	for (uintptr_t* i = reinterpret_cast<uintptr_t*>(*mapList);
+					//		i != mapList;
+					//		i = reinterpret_cast<uintptr_t*>(*i))
+					//	{
+					//		auto v5 = reinterpret_cast<MapItemSavedData*>(i[3]);
+
+					//		if (v5 != nullptr) {
+					//			if (v5->mapId == mapData->mapId) {
+					//				writelog("%lld", v5->mapId);
+					//				v5->applyPixels(pixels);
+					//				v5->setToLocked();
+					//				v5->save(ls);
+					//			}
+					//		}
+					//	}
+					//}
 					setMapData = true;
 					data::toast(data::getFormatted("%sMap data is now set to %s%s!\n%sCreate an empty map to apply image!", COLOR_E, COLOR_H, filePath.c_str(), COLOR_E));
 					return 0;

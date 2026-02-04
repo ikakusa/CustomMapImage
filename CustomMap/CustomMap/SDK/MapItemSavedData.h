@@ -15,6 +15,8 @@ struct SimplePixel {
 class LevelStorage;
 class MapItemSavedData {
 public:
+	BUILD_ACCESS(__int64, mapId, 0x8);
+public:
 	void applyPixels(
 		const std::vector<SimplePixel>& pixelsIn
 	) {
@@ -65,6 +67,6 @@ public:
 	void save(LevelStorage* ls) {
 		using func_t = void(__fastcall*)(MapItemSavedData*, LevelStorage*);
 		func_t func = reinterpret_cast<func_t>(SigScan("48 89 5C 24 18 55 56 57 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 27 48 8B FA 48 8B F1 0F"));
-		return func(this, ls);
+		func(this, ls);
 	}
 };
