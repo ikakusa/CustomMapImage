@@ -45,7 +45,7 @@ __int64 MapItemHook::save::handle(MapItemSavedData* _this, __int64* storage) {
 		hasUpdate = true;
 		_this->applyPixels(pixels);
 		_this->setToLocked();
-		writelog("saved %p", storage);
+		writelog("saved: %p, return_address: %p", _this, _ReturnAddress());
 	}
 	return oFunc(_this, storage);
 }
