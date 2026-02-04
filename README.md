@@ -24,7 +24,7 @@
 
  正しく画像が設定されると下の画像のようなメッセージが表示されます
  
-<img width="389" height="170" alt="image" src="https://github.com/user-attachments/assets/fe804368-8d6c-4ffd-899e-8a048d11d2e6" />
+<img width="770" height="107" alt="image" src="https://github.com/user-attachments/assets/f433b592-82e7-4502-8afd-15b9559c5703" />
 
 画像の設定が完了したら 空の地図を使用して地図を作成し 手に持ちます
 
