@@ -4,9 +4,9 @@
 void HookManager::initHooks() {
 	hooks.push_back(new MapItemHook::save());
 	hooks.push_back(new LocalPlayerHook::normalTick());
-	hooks.push_back(new MinecraftGameHook::update());
 	hooks.push_back(new ClientInstanceHook::update());
 	hooks.push_back(new LoopbackPacketSenderHook::sendToServer());
+	hooks.push_back(new MinecraftHook::update());
 	for (auto hook : hooks) {
 		hook->Initialize();
 		MH_EnableHook(MH_ALL_HOOKS);

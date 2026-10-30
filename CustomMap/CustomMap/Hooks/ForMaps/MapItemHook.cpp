@@ -32,29 +32,20 @@ inline uint32_t RGBAtoABGR(
 static int mapSize = 128;
 static std::chrono::steady_clock::time_point last = std::chrono::steady_clock::now();
 static std::string filePath{};
-static std::vector<SimplePixel> pixels{};
 
-static bool setMapData = false;
-static bool hasUpdate = false;
+static std::map<__int64, std::vector<SimplePixel>> queueMapData{};
 
 __int64 MapItemHook::save::handle(MapItemSavedData* _this, __int64* storage) {
 	static auto oFunc = funcPtr->GetFastcall<__int64, MapItemSavedData*, __int64*>();
 	using clock = std::chrono::steady_clock;
 	static bool threadStart = false;
-	if (setMapData) {
-		hasUpdate = true;
-		_this->applyPixels(pixels);
+	if (queueMapData.contains(_this->mapId)) {
+		_this->applyPixels(queueMapData[_this->mapId]);
 		_this->setToLocked();
-		writelog("saved: %p, return_address: %p", _this, _ReturnAddress());
+		data::toast(data::getFormatted("%sSuccessfully applied to map image! (MapID: %lld)", COLOR_E, _this->mapId));
+		queueMapData.erase(_this->mapId);
 	}
 	return oFunc(_this, storage);
-}
-
-__int64 MinecraftGameHook::update::handle(MinecraftGame* _this) {
-	static auto oFunc = funcPtr->GetFastcall<__int64, MinecraftGame*>();
-	data::setMCGame(_this);
-	data::setLS(_this->getLevelStorage());
-	return oFunc(_this);
 }
 
 __int64 LocalPlayerHook::normalTick::handle(LocalPlayer* _this) {
@@ -63,8 +54,8 @@ __int64 LocalPlayerHook::normalTick::handle(LocalPlayer* _this) {
 	return oFunc(_this);
 }
 
-__int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
-	static auto oFunc = funcPtr->GetFastcall<__int64, ClientInstance*, bool>();
+__int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a, bool b) {
+	static auto oFunc = funcPtr->GetFastcall<__int64, ClientInstance*, bool, bool>();
 	data::setClientInstance(_this);
 	data::setGuiData(_this->guiData);
 	static bool hasNotice = false;
@@ -77,26 +68,27 @@ __int64 ClientInstanceHook::update::handle(ClientInstance* _this, bool a) {
 		try {
 			if (toast.display) {
 				data::getGuiData()->displayClientMessage("%s<%s%s%s> %s", COLOR_H, COLOR_E, toast.title.c_str(), COLOR_H, toast.message.c_str());
-			} else
-				ToastNotificationManager::CreateToastNotifier().Show(toast.toast);
+			}
 		}
 		catch (...) {
 			writelog("<%s> %s", toast.title.c_str(), toast.message.c_str());
 		}
 		data::toasts.erase(data::toasts.begin() + i);
 	}
-	if (setMapData && hasUpdate) {
-		auto now = std::chrono::steady_clock::now();
-		if (now - last >= std::chrono::seconds(1)) {
-			hasUpdate = false;
-			last = now;
-			setMapData = false;
-			pixels.clear();
-			mapSize = 128;
-			data::toast(data::getFormatted("%sSuccessfully applied to map image!", COLOR_E));
+	return oFunc(_this, a, b);
+}
+
+//unused but can be used for future
+void MinecraftHook::update::handle(Minecraft* _this) {
+	static auto oFunc = funcPtr->GetFastcall<void, Minecraft*>();
+	auto gameSession = _this->gameSession;
+	if (gameSession) {
+		auto level = gameSession->gameLevel;
+		if (level && level->hasLevelStorage()) {
+			data::setLevelStorage(level->getLevelStorage());
 		}
 	}
-	return oFunc(_this, a);
+	return oFunc(_this);
 }
 
 __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _this, Packet* packet) {
@@ -122,20 +114,30 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 			//path 2~~
 			if (strcmp(command.c_str(), ".set_map") == 0) {
 				if (args.size() >= 3) {
+					std::vector<SimplePixel> pixels{};
+					pixels.reserve(mapSize * mapSize);
 					pixels.clear();
+					auto ci = data::getClientInstance();
 					auto level = lp->level;
-					auto ls = data::getLS();
+					auto ls = data::getLevelStorage();
+					if (!ls) {
+						data::toast(data::getFormatted("%sLevelStorage is null\nTry again", COLOR_C));
+						return 0;
+					}
 					auto mapDataManager = level->getMapDataManager();
 					auto supplies = lp->supplies;
 					auto item = lp->getSelectedItem();
-/*					if (!item || !level->getMapSavedData(item->tag)) {
-						data::toast(data::getFormatted("%sHold the map!", COLOR_C));
+					if (!item || !item->tag) {
+						data::toast(data::getFormatted("%sHold a map in your hand", COLOR_C));
 						return 0;
 					}
-					if (!ls) {
-						data::toast(data::getFormatted("%sLevelStorage is null!\ntry again", COLOR_C));
+
+					auto mapData = level->getMapSavedData(item->tag);
+					if (!mapData) {
+						data::toast(data::getFormatted("%sHold a map in your hand", COLOR_C));
 						return 0;
-					}*/
+					}
+
 					char* end{};
 					mapSize = std::strtol(args[1].c_str(), &end, 10);
 					if (mapSize == 0 || args[1] == end) mapSize = 128;
@@ -143,7 +145,7 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 					int w, h, channels;
 					auto image = stbi_load(filePath.c_str(), &w, &h, &channels, 4);
 					if (!image) {
-						data::toast(data::getFormatted("%sFile not found", COLOR_C));
+						data::toast(data::getFormatted("%sFile not found or invalid type (allows .png, .jpg, .jpeg)", COLOR_C));
 						return 0;
 					}
 					for (int y = 0; y < mapSize; ++y) {
@@ -164,8 +166,11 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 						}
 					}
 
-					/*auto mapData = level->getMapSavedData(item->tag);
-					uintptr_t* mapList = *reinterpret_cast<uintptr_t**>((uintptr_t)mapDataManager + 0x78);
+					queueMapData[mapData->mapId] = pixels;
+					data::toast(data::getFormatted("%sMap data is now set to %s%s!\n%sCreate an empty map to apply image! (MapID: %lld)", COLOR_E, COLOR_H, filePath.c_str(), COLOR_E, mapData->mapId));
+
+					//なぜか保存されないのでフック側で変更する
+					/*uintptr_t* mapList = *reinterpret_cast<uintptr_t**>((uintptr_t)mapDataManager + 0x78);
 
 					if (mapList != nullptr) {
 						for (uintptr_t* i = reinterpret_cast<uintptr_t*>(*mapList);
@@ -176,16 +181,15 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 
 							if (v5 != nullptr) {
 								if (v5->mapId == mapData->mapId) {
-									writelog("%lld", v5->mapId);
 									v5->applyPixels(pixels);
 									v5->setToLocked();
 									v5->save(ls);
 								}
+								else
+									v5->save(ls);
 							}
 						}
 					}*/
-					setMapData = true;
-					data::toast(data::getFormatted("%sMap data is now set to %s%s!\n%sCreate an empty map to apply image!", COLOR_E, COLOR_H, filePath.c_str(), COLOR_E));
 					return 0;
 				}
 				else {

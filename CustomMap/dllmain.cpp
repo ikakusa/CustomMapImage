@@ -3,7 +3,6 @@
 #include "CustomMap/Hooks/HookManager.h"
 #include <cassert>
 
-
 auto GetDllMod(void) -> HMODULE {
     MEMORY_BASIC_INFORMATION info;
     size_t len = VirtualQueryEx(GetCurrentProcess(), (void*)GetDllMod, &info, sizeof(info));
@@ -12,9 +11,9 @@ auto GetDllMod(void) -> HMODULE {
 }
 
 DWORD WINAPI init(LPVOID lpParam) {
+    winrt::init_apartment();
     MH_Initialize();
     HookManager::initHooks();
-    data::toast("CustomMapImage has been injected!", false);
     return 1;
 }
 static bool initialized = false;

@@ -218,7 +218,7 @@ public:
         static uintptr_t Address;
 
         if (Address == NULL) {
-            Address = SigScan("48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 60 48 8B F9 48 89 4C 24 30 33 ED");
+            Address = SigScan("56 48 83 EC 20 48 89 CE 81"); //1.26.60
         }
 
         auto pFunction = reinterpret_cast<std::shared_ptr<Packet>(__fastcall*)(MinecraftPacketIds)>(Address);
@@ -324,51 +324,26 @@ public:
         const std::string& msg(message);
         const std::optional<std::string>& filtered(msg);
         using func_t = void(*)(GuiData*, const std::string&, const std::optional<std::string>&, bool);
-        static auto func = reinterpret_cast<func_t>(SigScan("40 55 53 56 57 41 56 48 8D AC 24 A0 FE")); //1.21.132
+        static auto func = reinterpret_cast<func_t>(SigScan("55 56 53 48 81 ec ? ? ? ? 48 8d ac 24 ? ? ? ? 48 c7 85 ? ? ? ? ? ? ? ? 44 88 cb")); //1.26.44
         func(this, msg, filtered, true);
         va_end(arg);
     };
 };
 
-class LevelStorage;
-class LevelStorageOBJ {
+class Level;
+class GameSession {
 public:
-    BUILD_ACCESS(LevelStorage*, levelStorage, 0x10);
-};
-class Storage2 {
-public:
-    BUILD_ACCESS(LevelStorageOBJ*, obj, 0x78);
-    LevelStorage* getLevelStorage() {
-        if (!obj) return nullptr;
-        return obj->levelStorage;
-    }
+    BUILD_ACCESS(Level*, gameLevel, 0x40); //1.26.60
 };
 
-class Storage1 {
+class Minecraft {
 public:
-    BUILD_ACCESS(Storage2*, s2, 0x40); //1.21.132
-};
-
-/*
-LevelStorageとりかた
-MapItemSavedData::saveをフックして第２引数からlevelstorageのアドレスをとる
-ceでそのアドレスにアクセスしている関数を見つけるとMinecraftGame::updateが大量にアクセスしてくるのが見える
-MinecraftGame::updateに飛ぶ->v1(MinecraftGame*) + 0x???となってるところからいっぱいもってきて終わり
-*/
-class MinecraftGame {
-public:
-    BUILD_ACCESS(Storage1*, s1, 0xB8); //1.21.132
-public:
-    LevelStorage* getLevelStorage() {
-        if (!this->s1) return nullptr;
-        if (!this->s1->s2) return nullptr;
-        return this->s1->s2->getLevelStorage();
-    }
+    BUILD_ACCESS(GameSession*, gameSession, 0xD0); //1.26.60
 };
 
 class ClientInstance {
 public:
-    BUILD_ACCESS(GuiData*, guiData, 0x648); //1.21.132
-    BUILD_ACCESS(MinecraftGame*, mcGame, 0x1A0); //1.21.132
-    BUILD_ACCESS(LoopbackPacketSender*, packetSender, 0x1C8); //1.21.132
+    BUILD_ACCESS(GuiData*, guiData, 0x668); //1.26.60
+    BUILD_ACCESS(Minecraft*, mc, 0x1D0); //1.26.60
+    BUILD_ACCESS(LoopbackPacketSender*, packetSender, 0x1F0); //1.26.60
 };

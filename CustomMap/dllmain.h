@@ -12,6 +12,8 @@
 #include <winrt/Windows.ApplicationModel.Core.h>
 #include <winrt/Windows.UI.Core.h>
 
+#pragma comment(lib, "runtimeobject.lib")
+
 using namespace winrt;
 using namespace Windows::Data::Xml::Dom;
 using namespace Windows::UI::Notifications;
@@ -20,9 +22,8 @@ struct ToastData {
 public:
 	std::string title;
 	std::string message;
-	ToastNotification toast;
 	bool display;
-	ToastData(std::string a, std::string title, ToastNotification notif, bool display) : message(a), title(title), toast(notif), display(display) {};
+	ToastData(std::string a, std::string title, bool display) : message(a), title(title), display(display) {};
 };
 
 #define COLOR_H "ﾂｧh"
@@ -35,11 +36,13 @@ private:
 	static inline ClientInstance* clientInstance = nullptr;
 	static inline LocalPlayer* localPlayer = nullptr;
 	static inline GuiData* guiData = nullptr;
-	static inline MinecraftGame* mcGame = nullptr;
 	static inline LevelStorage* levelStorage = nullptr;
 public:
 	static ClientInstance* getClientInstance() {
 		return clientInstance;
+	}
+	static LevelStorage* getLevelStorage() {
+		return levelStorage;
 	}
 	static LocalPlayer* getLocalPlayer() {
 		return localPlayer;
@@ -47,27 +50,18 @@ public:
 	static GuiData* getGuiData() {
 		return guiData;
 	}
-	static MinecraftGame* getMCGame() {
-		return mcGame;
-	}
-	static LevelStorage* getLS() {
-		return levelStorage;
-	}
 public:
+	static void setLevelStorage(LevelStorage* ls) {
+		levelStorage = ls;
+	}
 	static void setClientInstance(ClientInstance* ci) {
 		clientInstance = ci;
 	}
 	static void setGuiData(GuiData* gd) {
 		guiData = gd;
 	}
-	static void setLS(LevelStorage* ls) {
-		levelStorage = ls;
-	}
 	static void setLocalPlayer(LocalPlayer* lp) {
 		localPlayer = lp;
-	}
-	static void setMCGame(MinecraftGame* mg) {
-		mcGame = mg;
 	}
 	static inline std::vector<ToastData> toasts;
 	static inline std::string getFormatted(const char* str, ...) {
@@ -118,12 +112,7 @@ public:
 	}
 	static __forceinline void toast(std::string str, bool displayMessage = true, std::string title = "CustomMapImage") {
 		try {
-			XmlDocument toastXml = ToastNotificationManager::GetTemplateContent(ToastTemplateType::ToastText02);
-			XmlNodeList textElements = toastXml.GetElementsByTagName(xorstr_(L"text"));
-			textElements.Item(0).InnerText(strToWstr(title));
-			textElements.Item(1).InnerText(strToWstr(str));
-			ToastNotification toast(toastXml);
-			data::toasts.push_back(ToastData(str, title, toast, displayMessage));
+			toasts.push_back(ToastData(str, title, displayMessage));
 		}
 		catch (...) {
 			writelog("%s", str.c_str());

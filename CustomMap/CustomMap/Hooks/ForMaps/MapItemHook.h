@@ -8,8 +8,8 @@ namespace MapItemHook {
 	public:
 		save() : Hook("MapItemSavedData::save") {};
 		static __int64 handle(MapItemSavedData* a1, __int64* a2);
-		bool Initialize() override {
-			uintptr_t address = SigScan("48 89 5C 24 18 55 56 57 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 45 27 48 8B FA 48 8B F1 0F");
+		bool Initialize() override { //1.26.60
+			uintptr_t address = SigScan("55 41 56 56 57 53 48 81 EC B0 00 00 00 48 8D AC 24 80 00 00 00 48 C7 45 28 FE FF FF FF 48 89 D6 48 89 CF 48 8D 1D");
 			return CreateHook(funcPtr, address, handle);
 		}
 	};
@@ -19,8 +19,22 @@ namespace MapItemHook {
 	public:
 		onSave() : Hook("MapDataManager::onSaveLevelData") {};
 		static __int64 handle(MapDataManager* a1, LevelStorage* a2);
-		bool Initialize() override {
-			uintptr_t address = SigScan("48 89 5C 24 18 48 89 6C 24 20 57 48 83 EC 20 48 8B 79 78");
+		bool Initialize() override { //1.26.60
+			uintptr_t address = SigScan("41 56 56 57 53 48 83 EC 28 48 8B 59 78");
+			return CreateHook(funcPtr, address, handle);
+		}
+	};
+}
+
+namespace MinecraftHook {
+	class update : public Hook {
+	private:
+		static inline std::unique_ptr<FuncHook> funcPtr;
+	public:
+		update() : Hook("Minecraft::update") {};
+		static void handle(Minecraft* a1);
+		bool Initialize() override { //1.26.60
+			uintptr_t address = SigScan("55 41 57 41 56 41 55 41 54 56 57 53 48 81 EC 38 01 00 00 48 8D AC 24 80 00 00 00 0F 29 BD A0 00 00 00 66");
 			return CreateHook(funcPtr, address, handle);
 		}
 	};
@@ -33,22 +47,8 @@ namespace LocalPlayerHook {
 	public:
 		normalTick() : Hook("LocalPlayer::normalTick") {};
 		static __int64 handle(LocalPlayer* _this);
-		bool Initialize() override {
-			uintptr_t address = SigScan("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 E8 FD FF FF 48 81 EC F0 02 00 00 0F 29 70 C8 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 85 D0 01 00 00 48 8B D9");
-			return CreateHook(funcPtr, address, handle);
-		}
-	};
-}
-
-namespace MinecraftGameHook {
-	class update : public Hook {
-	private:
-		static inline std::unique_ptr<FuncHook> funcPtr;
-	public:
-		update() : Hook("MinecraftGame::update") {};
-		static __int64 handle(MinecraftGame* _this);
-		bool Initialize() override {
-			uintptr_t address = SigScan("48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 08 FF FF FF 48 81 EC D0 01 00 00 0F 29 70 C8 0F 29 78 B8 48 8B 05");
+		bool Initialize() override { //1.26.60
+			uintptr_t address = SigScan("55 41 57 41 56 41 55 41 54 56 57 53 48 81 EC E8 02 00 00 48 8D AC 24 80 00 00 00 44 0F 29 85 50 02 00 00 66");
 			return CreateHook(funcPtr, address, handle);
 		}
 	};
@@ -60,9 +60,9 @@ namespace ClientInstanceHook {
 		static inline std::unique_ptr<FuncHook> funcPtr;
 	public:
 		update() : Hook("ClientInstance::update") {};
-		static __int64 handle(ClientInstance* _this, bool a);
-		bool Initialize() override {
-			uintptr_t address = SigScan("48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D AC 24 F0 FB FF FF 48 81 EC 10 05 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 85 00 04 00 00 44");
+		static __int64 handle(ClientInstance* _this, bool a, bool b);
+		bool Initialize() override { //1.26.60
+			uintptr_t address = SigScan("55 41 57 41 56 41 55 41 54 56 57 53 48 81 EC 08 05 00 00 48 8D AC 24 80 00 00 00 0F 29 B5 70 04 00 00 48 C7 85 68 04 00 00 FE FF FF FF 45");
 			return CreateHook(funcPtr, address, handle);
 		}
 	};
@@ -74,8 +74,8 @@ namespace LoopbackPacketSenderHook {
 	public:
 		sendToServer() : Hook("LoopbackPacketSender::sendToServer") {};
 		static __int64 handle(LoopbackPacketSender* _this, Packet* packet);
-		bool Initialize() override {
-			uintptr_t address = SigScan("48 89 5C 24 18 57 48 81 EC 60 02 00 00 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 50 02 00 00 0F");
+		bool Initialize() override { //1.26.60
+			uintptr_t address = SigScan("41 57 41 56 41 54 56 57 55 53 48 81 EC 90 01");
 			return CreateHook(funcPtr, address, handle);
 		}
 	};
