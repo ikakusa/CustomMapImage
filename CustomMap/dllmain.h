@@ -30,8 +30,11 @@ public:
 #define COLOR_E "ﾂｧe"
 #define COLOR_C "ﾂｧc"
 #define COLOR_4 "ﾂｧ4"
+#define COLOR_8 "ﾂｧ8"
 
 class data {
+public:
+	static inline HMODULE hModule{};
 private:
 	static inline ClientInstance* clientInstance = nullptr;
 	static inline LocalPlayer* localPlayer = nullptr;

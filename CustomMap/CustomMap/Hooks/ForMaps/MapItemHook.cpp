@@ -205,11 +205,11 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 			else {
 				static std::vector<std::pair<std::string, std::string>> commandsForHelp = {
 					std::make_pair(".set_map <size> <filePath>", "Set the map image to the specified file path with the given size(default size is 128)"),
-					std::make_pair(".clear", "Clear all data from the queue")
+					std::make_pair(".clear", "Clear all data from the queue"),
 				};
 				data::toast(data::getFormatted("%sCommand not found", COLOR_C));
 				for (const auto& cmd : commandsForHelp) {
-					data::toast(data::getFormatted("%s%s %s- %s%s", COLOR_E, cmd.first.c_str(), COLOR_H, COLOR_E, cmd.second.c_str()));
+					data::toast(data::getFormatted("%s%s %s- %s%s", COLOR_E, cmd.first.c_str(), COLOR_8, COLOR_H, cmd.second.c_str()));
 				}
 			}
 			return 0;
