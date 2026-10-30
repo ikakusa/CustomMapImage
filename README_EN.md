@@ -35,7 +35,7 @@ After setting the image, create a map using an **empty map** and hold it in your
 After waiting for a short time, a message like the one below will appear.  
 If you see this message, the process was successful.
 
-<img width="762" height="68" alt="image" src="https://github.com/user-attachments/assets/ffa1e217-36be-4865-9d8d-43393346179b" />
+<img width="1260" height="66" alt="image" src="https://github.com/user-attachments/assets/8bae6584-561a-4d53-9bc5-97dc4587eac0" />
 
 While holding the map, it will appear as a normal map.  
 However, once you place it in an item frame or similar, it will switch to the correctly configured image.
