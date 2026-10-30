@@ -197,6 +197,11 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 					return 0;
 				}
 			}
+			else if (strcmp(command.c_str(), ".clear") == 0) {
+				queueMapData.clear();
+				data::toast(data::getFormatted("%sCleared all data from queue", COLOR_E));
+				return 0;
+			}
 			else {
 				data::toast(data::getFormatted("%sCommand not found", COLOR_C));
 			}
