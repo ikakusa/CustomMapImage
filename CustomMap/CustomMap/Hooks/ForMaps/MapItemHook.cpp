@@ -167,7 +167,7 @@ __int64 LoopbackPacketSenderHook::sendToServer::handle(LoopbackPacketSender* _th
 					}
 
 					queueMapData[mapData->mapId] = pixels;
-					data::toast(data::getFormatted("%sMap data is now set to %s%s!\n%sCreate an empty map to apply image! (MapID: %lld)", COLOR_E, COLOR_H, filePath.c_str(), COLOR_E, mapData->mapId));
+					data::toast(data::getFormatted("%sMap data is now set to %s%s!\n%sWait until the image applied! (MapID: %lld)", COLOR_E, COLOR_H, filePath.c_str(), COLOR_E, mapData->mapId));
 
 					//なぜか保存されないのでフック側で変更する
 					/*uintptr_t* mapList = *reinterpret_cast<uintptr_t**>((uintptr_t)mapDataManager + 0x78);
