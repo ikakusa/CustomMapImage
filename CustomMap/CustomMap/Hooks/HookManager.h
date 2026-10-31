@@ -7,10 +7,19 @@
 class Hook;
 class HookManager {
 private:
-	static inline std::vector<Hook*> hooks;
+	std::vector<std::unique_ptr<Hook>> hooks;
+	HookManager() {};
 public:
-	static void initHooks();
-	static void DeleteHooks() {
-		hooks.clear();
+	HookManager(const HookManager&) = delete;
+	HookManager& operator=(const HookManager&) = delete;
+	~HookManager() {
+		DeleteHooks();
 	}
+
+	static HookManager& getInstance() {
+		static HookManager instance;
+		return instance;
+	}
+	static void initHooks();
+	static void DeleteHooks();
 };

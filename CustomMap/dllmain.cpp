@@ -12,7 +12,6 @@ auto GetDllMod(void) -> HMODULE {
 
 DWORD WINAPI init(LPVOID lpParam) {
 	data::hModule = reinterpret_cast<HMODULE>(lpParam);
-    winrt::init_apartment();
     MH_Initialize();
     HookManager::initHooks();
     return 1;
